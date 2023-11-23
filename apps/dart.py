@@ -34,7 +34,7 @@ def format_date_time(iso_date_time):
     hour, minute, second = map(int, [hour, minute, second])  # Convert to integers
 
     # Format the date and time in the desired format
-    formatted_date_time = "{:02d}:{:02d} {:02d}{}".format(hour, minute, day, month)
+    formatted_date_time = "{:02d}:{:02d} {:02d}/{}".format(hour, minute, day, month)
 
     return formatted_date_time
 
@@ -77,17 +77,25 @@ def draw_dart():
     # Header Row
     display.rectangle(0,20,WIDTH,20)
     display.set_pen(15)
-    display.text("No.",0,22,WIDTH,1)
+    display.text("No.",0,22)
     display.text("Dest.",60,22)
     display.text("Sch.",180,22)
     display.text("Est.",240,22)
     display.set_pen(0)
     
     # Display Train info
-    display.text(trains[0].Traincode,0,42,WIDTH,2)
-    display.text(trains[0].Destination,60,42,WIDTH,2)
-    display.text(trains[0].Expdepart,180,42,WIDTH,2)
-    display.text(trains[0].Schdepart,240,42,WIDTH,2)
+    spacing_a = [0,42]
+    spacing_b = [60,42]
+    spacing_c = [185,42]
+    spacing_d = [245,42]
+    new_line = 0
+    
+    for i in trains:  
+        display.text(i.Traincode,spacing_a[0],spacing_a[1]+new_line,WIDTH,2)
+        display.text(i.Destination,spacing_b[0],spacing_b[1]+new_line,WIDTH,2)
+        display.text(i.Expdepart,spacing_c[0],spacing_c[1]+new_line,WIDTH,2)
+        display.text(i.Schdepart,spacing_d[0],spacing_d[1]+new_line,WIDTH,2)
+        new_line += 20
     
    
     
