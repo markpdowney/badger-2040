@@ -7,8 +7,8 @@ import urequests
 import jpegdec
 
 # Set your latitude/longitude here (find yours by right clicking in Google Maps!)
-LAT = 53.38609085276884
-LNG = -1.4239983439328177
+LAT = 53.450722
+LNG = -6.1542727
 TIMEZONE = "auto"  # determines time zone from lat/long
 
 URL = "http://api.open-meteo.com/v1/forecast?latitude=" + str(LAT) + "&longitude=" + str(LNG) + "&current_weather=true&timezone=" + TIMEZONE
