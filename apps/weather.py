@@ -45,13 +45,13 @@ def get_data():
     tokenizer = xmltok.tokenize(io.StringIO(xml_str))
     print("Data obtained!")
 
-    token, value, *_ = next(tokenizer)
     i = 0
     in_block_a = False
     in_block_b = False
-    
-    
+        
     while i < 4:        
+        
+        
         gc.collect()
         
         tmp_start = ""
@@ -64,50 +64,81 @@ def get_data():
         tmp_desc = ""
         temp_desc_code = ""
         
-        print("while")
+        token, tag, *attr = next(tokenizer)
         
-        if token == xmltok.START_TAG and value[1] == "time":
+        if token == xmltok.START_TAG and tag[1] == "time":
             in_block_a = True
-            token, value, *_ = next(tokenizer)
             
-            token, value, *_ = next(tokenizer)
-            
-            token, value, *_ = next(tokenizer)
-            
+            #skip tag
+            token, tag, *attr = next(tokenizer)
+            token, tag, *attr = next(tokenizer)
+            tmp_start = attr[0]
+            token, tag, *attr = next(tokenizer)
+            tmp_end = attr[0]
+            token, tag, *attr = next(tokenizer)
             
             while in_block_a:
-                print(f" A Token : {token} : Value : {value} : Other : {_}")
-                token, value, *_ = next(tokenizer) 
                 
-                if token == xmltok.END_TAG and value[1] == "time":
+                if token == xmltok.START_TAG and tag[1] == "temperature":
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    tmp_temp = attr[0]
+                    token, tag, *attr = next(tokenizer)
+                
+                if token == xmltok.START_TAG and tag[1] == "windSpeed":
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    tmp_wind = attr[0]
+                
+                
+                if token == xmltok.END_TAG and tag[1] == "time":
                     in_block_a = False
+                
+                token, tag, *attr = next(tokenizer)
+                
         
-        token, value, *_ = next(tokenizer)
-        
-        if token == xmltok.START_TAG and value[1] == "time":
+        if token == xmltok.START_TAG and tag[1] == "time":
             in_block_b = True
             
-            while in_block_b:
-                print(f" B Token : {token} : Value : {value} : Other : {_}")
-                token, value, *_ = next(tokenizer)
-                
-                if token == xmltok.END_TAG and value[1] == "time":
-                    in_block_b = False
+            while in_block_b:                
+                if token == xmltok.START_TAG and tag[1] == "precipitation":
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    tmp_pcp_min = attr[0]
+                    token, tag, *attr = next(tokenizer)
+                    tmp_pcp_max = attr[0]
+                    token, tag, *attr = next(tokenizer)
+                    tmp_pcp_prb = attr[0]
+                    token, tag, *attr = next(tokenizer)
+                    token, tag, *attr = next(tokenizer)
+                    
+                if token == xmltok.START_TAG and tag[1] == "symbol":
+                    token, tag, *attr = next(tokenizer)
+                    tmp_desc = attr[0]
+                    token, tag, *attr = next(tokenizer)
+                    tmp_desc_code = attr[0]
+                    tmp_weather = weather_hour(tmp_start,tmp_end,tmp_temp, tmp_wind,tmp_pcp_min,tmp_pcp_max,tmp_pcp_prb,tmp_desc,tmp_desc_code)
+                    weathers.append(tmp_weather)
                     i += 1
+                    
+                
+                if token == xmltok.END_TAG and tag[1] == "time":
+                    in_block_b = False
+                    break
         
-        token, value, *_ = next(tokenizer) 
+                token, tag, *attr = next(tokenizer)
         
-        
-
-
-def calculate_bearing(d):
-    # calculates a compass direction from the wind direction in degrees
-    dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-    ix = round(d / (360. / len(dirs)))
-    return dirs[ix % len(dirs)]
+        token, tag, *attr = next(tokenizer)
+    
+    return weathers
 
 
 def draw_page():
+    weathers = get_data()
+    
     # Clear the display
     display.set_pen(15)
     display.clear()
