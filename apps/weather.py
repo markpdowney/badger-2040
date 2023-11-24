@@ -5,43 +5,45 @@ import badger2040
 from badger2040 import WIDTH
 import urequests
 import jpegdec
+import xmltok
 
 # Set your latitude/longitude here (find yours by right clicking in Google Maps!)
 LAT = 53.450722
 LNG = -6.1542727
-TIMEZONE = "auto"  # determines time zone from lat/long
 
-URL = "http://api.open-meteo.com/v1/forecast?latitude=" + str(LAT) + "&longitude=" + str(LNG) + "&current_weather=true&timezone=" + TIMEZONE
-
+URL = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=" + str(LAT) + ";long=" + str(LNG)
 # Display Setup
 display = badger2040.Badger2040()
 display.led(128)
 display.set_update_speed(2)
-
 jpeg = jpegdec.JPEG(display.display)
-
 # Connects to the wireless network. Ensure you have entered your details in WIFI_CONFIG.py :).
 display.connect()
 
+class weather_hour:
+    def __init__(self, prop1, prop2, prop3, prop4, prop5, prop6):
+        self.temperature = prop1
+        self.windspeed = prop2
+        self.winddirection = prop3
+        self.weathercode = prop4
+        self.time = prop5
+        self.date = prop6
 
-def get_data():
-    global weathercode, temperature, windspeed, winddirection, date, time
+
+def get_data():   
+    weathers = []
+    
     print(f"Requesting URL: {URL}")
-    r = urequests.get(URL)
-    # open the json data
-    j = r.json()
+    xml_bytes = urequests.get(URL)
+    
+    xml_str = xml_bytes.content.decode()  # Convert bytes to string
+    tokenizer = xmltok.tokenize(io.StringIO(xml_str))
     print("Data obtained!")
-    print(j)
 
-    # parse relevant data from JSON
-    current = j["current_weather"]
-    temperature = current["temperature"]
-    windspeed = current["windspeed"]
-    winddirection = calculate_bearing(current["winddirection"])
-    weathercode = current["weathercode"]
-    date, time = current["time"].split("T")
-
-    r.close()
+    token, value, *_ = next(tokenizer)
+    
+    while True:
+        print(next(tokenizer))  
 
 
 def calculate_bearing(d):
