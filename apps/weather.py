@@ -7,6 +7,7 @@ import urequests
 import jpegdec
 import io
 import xmltok
+import gc
 
 # Set your latitude/longitude here (find yours by right clicking in Google Maps!)
 LAT = 53.450722
@@ -42,9 +43,19 @@ def get_data():
     print("Data obtained!")
 
     token, value, *_ = next(tokenizer)
+    i = 0
     
-    while True:
-        print(f"Token : {token} : Value : {value} : Other : {_}")
+    while i < 8:        
+        gc.collect()
+        if token == xmltok.START_TAG and value[1] == "time":
+            print(f"Token : {token} : Value : {value} : Other : {_}")
+            token, value, *_ = next(tokenizer)
+            print(f"Token : {token} : Value : {value} : Other : {_}")
+            token, value, *_ = next(tokenizer)
+            print(f"Token : {token} : Value : {value} : Other : {_}")
+            token, value, *_ = next(tokenizer)
+            print(f"Token : {token} : Value : {value} : Other : {_}")
+            i += 1
         token, value, *_ = next(tokenizer)
 
 
