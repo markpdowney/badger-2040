@@ -5,6 +5,7 @@ import badger2040
 from badger2040 import WIDTH
 import urequests
 import jpegdec
+import io
 import xmltok
 
 # Set your latitude/longitude here (find yours by right clicking in Google Maps!)
@@ -43,7 +44,8 @@ def get_data():
     token, value, *_ = next(tokenizer)
     
     while True:
-        print(next(tokenizer))  
+        print(f"Token : {token} : Value : {value} : Other : {_}")
+        token, value, *_ = next(tokenizer)
 
 
 def calculate_bearing(d):
