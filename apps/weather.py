@@ -23,13 +23,16 @@ jpeg = jpegdec.JPEG(display.display)
 display.connect()
 
 class weather_hour:
-    def __init__(self, prop1, prop2, prop3, prop4, prop5, prop6):
-        self.temperature = prop1
-        self.windspeed = prop2
-        self.winddirection = prop3
-        self.weathercode = prop4
-        self.time = prop5
-        self.date = prop6
+    def __init__(self, prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9):
+        self.start_time = prop1,
+        self.end_time = prop2
+        self.temp = prop3
+        self.beaufort = prop4
+        self.rain_min = prop5
+        self.rain_max = prop6
+        self.rain_prob = prop7
+        self.desc = prop8
+        self.desc_code = prop9
 
 
 def get_data():   
@@ -44,19 +47,57 @@ def get_data():
 
     token, value, *_ = next(tokenizer)
     i = 0
+    in_block_a = False
+    in_block_b = False
     
-    while i < 8:        
+    
+    while i < 4:        
         gc.collect()
+        
+        tmp_start = ""
+        tmp_end = ""
+        tmp_temp = ""
+        tmp_wind = ""
+        tmp_pcp_min = ""
+        tmp_pcp_max = ""
+        tmp_pcp_prb = ""
+        tmp_desc = ""
+        temp_desc_code = ""
+        
+        print("while")
+        
         if token == xmltok.START_TAG and value[1] == "time":
-            print(f"Token : {token} : Value : {value} : Other : {_}")
+            in_block_a = True
             token, value, *_ = next(tokenizer)
-            print(f"Token : {token} : Value : {value} : Other : {_}")
+            
             token, value, *_ = next(tokenizer)
-            print(f"Token : {token} : Value : {value} : Other : {_}")
+            
             token, value, *_ = next(tokenizer)
-            print(f"Token : {token} : Value : {value} : Other : {_}")
-            i += 1
+            
+            
+            while in_block_a:
+                print(f" A Token : {token} : Value : {value} : Other : {_}")
+                token, value, *_ = next(tokenizer) 
+                
+                if token == xmltok.END_TAG and value[1] == "time":
+                    in_block_a = False
+        
         token, value, *_ = next(tokenizer)
+        
+        if token == xmltok.START_TAG and value[1] == "time":
+            in_block_b = True
+            
+            while in_block_b:
+                print(f" B Token : {token} : Value : {value} : Other : {_}")
+                token, value, *_ = next(tokenizer)
+                
+                if token == xmltok.END_TAG and value[1] == "time":
+                    in_block_b = False
+                    i += 1
+        
+        token, value, *_ = next(tokenizer) 
+        
+        
 
 
 def calculate_bearing(d):
