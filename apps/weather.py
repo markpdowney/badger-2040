@@ -9,6 +9,11 @@ import io
 import xmltok
 import gc
 
+
+
+WIDTH = badger2040.WIDTH
+
+
 # Set your latitude/longitude here (find yours by right clicking in Google Maps!)
 LAT = 53.450722
 LNG = -6.1542727
@@ -131,10 +136,11 @@ def get_data():
         
                 token, tag, *attr = next(tokenizer)
         
-        token, tag, *attr = next(tokenizer)
     
     return weathers
 
+# Approximate center lines for four sections
+centers = (30,90,150,210,270)
 
 def draw_page():
     weathers = get_data()
@@ -147,44 +153,59 @@ def draw_page():
     # Draw the page header
     display.set_font("bitmap6")
     display.set_pen(0)
+    display.rectangle(0, 0, centers[0]*2, badger2040.HEIGHT)
     display.rectangle(0, 0, WIDTH, 20)
     display.set_pen(15)
-    display.text("Weather", 3, 4)
+    display.text("Malahide Weather", 3, 4)
     display.set_pen(0)
 
     display.set_font("bitmap8")
-
-    if temperature is not None:
-        # Choose an appropriate icon based on the weather code
-        # Weather codes from https://open-meteo.com/en/docs
-        # Weather icons from https://fontawesome.com/
-        if weathercode in [71, 73, 75, 77, 85, 86]:  # codes for snow
-            jpeg.open_file("/icons/icon-snow.jpg")
-        elif weathercode in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]:  # codes for rain
-            jpeg.open_file("/icons/icon-rain.jpg")
-        elif weathercode in [1, 2, 3, 45, 48]:  # codes for cloud
-            jpeg.open_file("/icons/icon-cloud.jpg")
-        elif weathercode in [0]:  # codes for sun
-            jpeg.open_file("/icons/icon-sun.jpg")
-        elif weathercode in [95, 96, 99]:  # codes for storm
-            jpeg.open_file("/icons/icon-storm.jpg")
-        jpeg.decode(13, 40, jpegdec.JPEG_SCALE_FULL)
-        display.set_pen(0)
-        display.text(f"Temperature: {temperature}°C", int(WIDTH / 3), 28, WIDTH - 105, 2)
-        display.text(f"Wind Speed: {windspeed}kmph", int(WIDTH / 3), 48, WIDTH - 105, 2)
-        display.text(f"Wind Direction: {winddirection}", int(WIDTH / 3), 68, WIDTH - 105, 2)
-        display.text(f"Last update: {date}, {time}", int(WIDTH / 3), 88, WIDTH - 105, 2)
-
-    else:
-        display.set_pen(0)
-        display.rectangle(0, 60, WIDTH, 25)
-        display.set_pen(15)
-        display.text("Unable to display weather! Check your network settings in WIFI_CONFIG.py", 5, 65, WIDTH, 1)
+    
+    # row values
+    display.set_pen(15)
+    x = centers[0]
+    label = "Hour"
+    w = display.measure_text(label, 2)
+    display.text(label,int(x - (w / 2)),22, 3, 2)
+    label = "Temp"
+    w = display.measure_text(label, 2)
+    display.text(label,int(x - (w / 2)),44, 3, 2)
+    label = "Rain"
+    w = display.measure_text(label, 2)
+    display.text(label,int(x - (w / 2)),66, 3, 2)
+    label = "Prob%"
+    w = display.measure_text(label, 2)
+    display.text(label,int(x - (w / 2)),88, 3, 2)
+    
+    display.set_pen(0)
+    
+    
+    count = 1
+    
+    for i in weathers:
+        
+        x = centers[count]
+        
+        label = i.start_time[0][11:13]
+        w = display.measure_text(label, 2)
+        display.text(label,int(x - (w / 2)),22,WIDTH,2)
+        
+        label = i.temp
+        w = display.measure_text(label, 2)
+        display.text(label,int(x - (w / 2)),44,WIDTH,2)
+        
+        label = i.rain_max
+        w = display.measure_text(label, 2)
+        display.text(label,int(x - (w / 2)),66,WIDTH,2)
+        
+        label = i.rain_prob
+        w = display.measure_text(label, 2)
+        display.text(label,int(x - (w / 2)),88,WIDTH,2)
+        
+        count += 1
 
     display.update()
 
-
-get_data()
 draw_page()
 
 # Call halt in a loop, on battery this switches off power.
